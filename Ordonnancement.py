@@ -13,11 +13,11 @@ class Ordonnancement:
 
         # Ajout des arcs depuis le sommet de départ a
         for tache in taches:
-            if tache["numero"] == 1: # tache[numero] parcourt la premiere colonne du fichier (les sommets ou numéros de tache)
+            if tache["numero"] == 1: # tache[numero] parcourt la premiere ligne du fichier (les sommets ou numéros de tache)
                 nb_arcs += 1
                 print(f"a -> {tache['numero']} = 0")
 
-                # Ajout des arcs vers le sommet de fin w
+                # on fait pareil sauf que c'est pour les taches suivantes
                 for tache in taches:
                     if not tache["contraintes"]:
                         nb_arcs += 1
@@ -25,7 +25,7 @@ class Ordonnancement:
 
         # Ajout des arcs entre les tâches
         for tache in taches:
-            # Ajouter les arcs pour chaque contrainte de la tâche
+            # Ajouter les arcs pour chaque contrainte (ou prédecesseur) de la tâche
             for contrainte in tache["contraintes"]:
                 nb_arcs += 1
                 duree = 0
@@ -86,7 +86,7 @@ class Ordonnancement:
 
 
         # Affichage de la matrice des valeurs
-        entetes = [""] + [str(i) for i in range(N + 1)] + [str(tache["duree"] + 1)]
+        entetes = [""] + [str(i) for i in range(N + 1)] + [str(N+1)]
         print("* Matrice des valeurs")
         print("\t".join(entetes))
         for i in range(nb_sommets):
