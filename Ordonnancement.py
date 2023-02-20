@@ -13,7 +13,7 @@ class Ordonnancement:
 
         # Ajout des arcs depuis le sommet de départ a
         for tache in taches:
-            if tache["numero"] == 1:
+            if tache["numero"] == 1: # tache[numero] parcourt la premiere colonne du fichier (les sommets ou numéros de tache)
                 nb_arcs += 1
                 print(f"a -> {tache['numero']} = 0")
 
