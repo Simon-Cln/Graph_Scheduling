@@ -18,7 +18,6 @@ class Ordonnancement:
         for tache in taches:
             if tache["numero"] == 1: # tache[numero] parcourt la premiere ligne du fichier (les sommets ou numéros de tache)
                 nb_arcs += 1
-                print(f"a -> {tache['numero']} = 0")
 
                 # on fait pareil sauf que c'est pour les taches suivantes
                 for tache in taches:
@@ -99,7 +98,7 @@ class Ordonnancement:
             print("\t".join(ligne))
         return valeurs
 
-    def circuit_detection(matrice):
+    def not_circuit_detection(matrice):
         # Définition des codes d'échappement ANSI
         GREEN = '\033[32m'
         RESET = '\033[0m'
@@ -119,18 +118,14 @@ class Ordonnancement:
             if est_point_entree:
                 points_entree.append(i)
                 entrees_totales.append(i)
-        print("Point(s) d'entrée :",", ".join(str(x) for x in points_entree) )
-
+        print("Point(s) d'entrée :", ", ".join(str(x) for x in points_entree))
 
         # Boucle principale de détection de circuit
         while points_entree:
 
-            import time
-
             WAIT_TIME = 0.4  # temps d'attente en secondes
 
             while points_entree:
-
                 # Suppression des points d'entrée et nouveaux points d'entrée créés
                 for i in points_entree:
                     for j in range(len(matrice)):
@@ -179,6 +174,43 @@ class Ordonnancement:
 
             print(GREEN + "-> Il n'y a pas d'arcs négatifs !\n-> C'est un graphe d'ordonnancement !" + RESET + "\n")
             return True
+
+    def rank_calculation(matrice):
+        matrice_copy = [row[:] for row in matrice]  # faire une copie de la matrice
+
+        if not Ordonnancement.not_circuit_detection(matrice_copy):
+            print("Ce n'est pas un graphe d'ordonnancement :(")
+            exit(0)
+        else:
+            n = len(matrice)
+            degres = [0] * n
+            for i in range(n):
+                for j in range(n):
+                    if matrice[i][j] != '*':
+                        degres[j] += 1
+
+            rangs = [0] * n
+            a_traiter = [i for i in range(n) if degres[i] == 0]
+
+            k = 0
+            while len(a_traiter) > 0:
+                a_traiter_suivant = []
+                for i in a_traiter:
+                    rangs[i] = k
+                    for j in range(n):
+                        if matrice[i][j] != '*':
+                            degres[j] -= 1
+                            if degres[j] == 0:
+                                a_traiter_suivant.append(j)
+                a_traiter = a_traiter_suivant
+                k += 1
+            return rangs
+
+    def display_ranks(matrice):
+        rang = Ordonnancement.rank_calculation(matrice)
+        for sommet, r in enumerate(rang, start=1):
+            print(f"Sommet {sommet-1} : rang = {r}")
+
 
 
 
