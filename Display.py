@@ -14,7 +14,8 @@ class Display:
                 # Lancer le programme
                 print("Programme lancé!")
                 #Display.display_result(self)
-                final.display_ranks(final.creation_scheduling(self))
+                #final.rank_calculation(final.creation_scheduling(self))
+                final.rank_calculation(final.creation_scheduling(self))
             elif reponse.lower() != 'non':
                 # Répéter la demande si la réponse n'est pas valide
                 print("Réponse invalide. Veuillez entrer 'oui' ou 'non'.")

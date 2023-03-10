@@ -32,13 +32,23 @@ class FileMemory:
                     # Convertir les éléments de la liste en entiers
                     elements = [int(x) for x in elements]
                     # Stocker les informations de la tâche dans un dictionnaire
-                    tache = {"numero": elements[0], "duree": elements[1], "contraintes": elements[2:]}
+                    tache = {"numero": elements[0], "duree": elements[1], "contraintes":  elements[2:]}
                     # Ajouter la tâche à la liste des tâches
                     taches.append(tache)
+
+
         except FileNotFoundError:
-            print("Le fichier n'a pas été trouvé.")
-        # Tri des sommets en ordre croissant
-        taches.sort(key=lambda x: x["numero"])
+            print("Le fichier {} n'existe pas.".format(nom_fichier))
+        except PermissionError:
+            print("Vous n'avez pas les droits d'accès pour lire le fichier {}.".format(nom_fichier))
+        except ValueError:
+            print("Le format du fichier {} est incorrect.".format(nom_fichier))
+
+        # Tri des taches en fonction de leurs contraintes triées et de leur numéro
+        taches.sort(key=lambda tache: (sorted([int(c) for c in tache["contraintes"]]), tache["numero"]))
+
+        # Traitement des taches sans contraintes entrantes en premier
+
         return taches
 
 
