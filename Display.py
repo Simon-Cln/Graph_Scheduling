@@ -8,17 +8,16 @@ class Display:
         reponse = 'oui'
         while reponse.lower() != 'non':
             # Demander à l'utilisateur de lancer le programme
-            reponse = input("Voulez-vous lancer le programme ? (oui/non) ")
+            reponse = input("\nVoulez-vous lancer le programme ? (oui/non) ")
 
             if reponse.lower() == 'oui':
                 # Lancer le programme
                 print("Programme lancé!")
-                #Display.display_result(self)
-                #final.rank_calculation(final.creation_scheduling(self))
-                final.rank_calculation(final.creation_scheduling(self))
+                final.display_critical_path(final.creation_scheduling(self))
             elif reponse.lower() != 'non':
                 # Répéter la demande si la réponse n'est pas valide
                 print("Réponse invalide. Veuillez entrer 'oui' ou 'non'.")
+        print("Programme terminé.")
 
 
 if __name__ == '__main__':

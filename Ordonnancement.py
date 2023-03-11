@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import PrettyTable as pt
 import FileMemory
 import time
 from tqdm import tqdm
 from colorama import Fore, Style, init, deinit
 import re
+import prettytable as pt
 
 
 init()
@@ -124,7 +124,7 @@ class Ordonnancement:
         RED = '\033[31m'
 
         print(BLUE + "\n* Méthode d'élimination des points d'entrée\n* Détection de circuit en cours\n" + RESET)
-
+        nb_sommets = len(matrice)
         entrees_totales = []
         # Recherche des points d'entrée
         points_entree = []
@@ -135,14 +135,24 @@ class Ordonnancement:
                     est_point_entree = False
                     break
             if est_point_entree:
-                points_entree.append(i)
+                if i == 0:
+                    points_entree.append('α')
+                else:
+                    points_entree.append(i)
                 entrees_totales.append(i)
         print("Point(s) d'entrée :", ", ".join(str(x) for x in points_entree))
+
+        # Remplacement de 'α' et 'ω' par 0 et len(matrice) - 1
+        for i, point in enumerate(points_entree):
+            if point == 'α':
+                points_entree[i] = 0
+
+
 
         # Boucle principale de détection de circuit
         while points_entree:
 
-            WAIT_TIME = 0.4  # temps d'attente en secondes
+            WAIT_TIME = 0.3  # temps d'attente en secondes
 
             while points_entree:
                 # Suppression des points d'entrée et nouveaux points d'entrée créés
@@ -156,14 +166,23 @@ class Ordonnancement:
                         time.sleep(WAIT_TIME)
                     print("\r   \r", end="")
 
+                # Recherche des sommets restants
                 sommets = []
                 for i in range(len(matrice)):
                     if i not in sommets and i not in points_entree and i not in entrees_totales:
                         sommets.append(i)
+                        if i == len(matrice) - 1:
+                            sommets[-1] = 'ω'
                     for j in range(len(matrice)):
                         if matrice[i][j] != '∴' and j not in points_entree and i not in sommets:
                             sommets.append(i)
+                            if j == len(matrice) - 1:
+                                sommets[-1] = 'ω'
                 print("Sommets restants :", ", ".join(str(x) for x in sommets))
+                for i, sommet in enumerate(sommets):
+                    if sommet == 'ω':
+                        sommets[i] = len(matrice) - 1
+
 
                 # Recherche des nouveaux points d'entrée
                 nouveaux_points_entree = []
@@ -176,11 +195,19 @@ class Ordonnancement:
                     if est_point_entree:
                         nouveaux_points_entree.append(i)
                         entrees_totales.append(i)
-                        print("Nouveaux Points d'entrée :", ", ".join(str(x) for x in nouveaux_points_entree))
+                        if i == len(matrice) - 1:
+                            nouveaux_points_entree[-1] = 'ω'
 
-                if len(nouveaux_points_entree) == 0:
-                            print("Nouveaux Points d'entrée :", RED + "Aucun" + RESET)
 
+
+
+                if len(nouveaux_points_entree) > 0:
+                    print("Nouveaux Points d'entrée :", ", ".join(str(x) for x in nouveaux_points_entree))
+                else:
+                    print("Nouveaux Points d'entrée :", RED + "Aucun" + RESET)
+                for i, sommet in enumerate(nouveaux_points_entree):
+                    if sommet == 'ω':
+                        nouveaux_points_entree[i] = len(matrice) - 1
 
 
 
@@ -233,31 +260,129 @@ class Ordonnancement:
                 a_traiter = a_traiter_suivant
                 k += 1
 
-            table = pt()
-            table.field_names = ["Tache", "Rang"]
+            print(Style.BRIGHT + Fore.LIGHTGREEN_EX+ "CALCUL DES RANGS EN COURS\n" + Style.BRIGHT + Fore.LIGHTGREEN_EX)
+            for i in range(3):
+                print(".", end="")
+                time.sleep(0.4)
+            print("\r   \r", end="")
+            init()
+            print('╒═══════╤═══════╕')
+            print('│ Tache │ Rang  │')
+            print('╞═══════╪═══════╡')
             for i in range(n):
-                table.add_row([i, rangs[i]])
+                if i == 0:
+                    tache = 'α'
+                elif i == n - 1:
+                    tache = 'ω'
+                else:
+                    tache = i
+                print('│{:^7}│{:^7}│'.format(tache, rangs[i]))
+                time.sleep(0.35)
+                if i < n - 1:
+                    print('├───────┼───────┤')
+            print('╘═══════╧═══════╛')
 
-            print(table)
             return rangs
 
+    def remove_escape_chars(matrice):
+        new_matrice = []
+        for ligne in matrice:
+            if isinstance(ligne, str):
+                new_ligne = re.sub('\x1b\[[0-9;]*m', '', ligne)
+            else:
+                new_ligne = []
+                for element in ligne:
+                    new_element = re.sub('\x1b\[[0-9;]*m', '', element)
+                    new_ligne.append(new_element)
+            new_matrice.append(new_ligne)
+        return new_matrice
 
-    def calendrier_plus_tot(matrice, rangs):
-        n = len(matrice)
-        durees = [0] * n
-        for i in range(n):
-            durees[i] = max([durees[j] + matrice[j][i] for j in range(n) if matrice[j][i] != '*'])
-        dates_plus_tot = [0] * n
-        for i in range(n):
-            dates_plus_tot[i] = durees[i] - rangs[i]
-        return dates_plus_tot
+    def calendar_margin(matrice):
+        new_matrice = Ordonnancement.remove_escape_chars(matrice)
 
-    def afficher_calendrier_plus_tot(matrice):
-        rangs = Ordonnancement.rank_calculation(matrice)
-        dates_plus_tot = Ordonnancement.calendrier_plus_tot(matrice, rangs)
-        print("Calendrier au plus tôt :")
-        for i in range(len(matrice)):
-            print("Tâche {}: date de début = {}".format(i + 1, dates_plus_tot[i]))
+        Ordonnancement.rank_calculation(new_matrice)
+
+        n = len(new_matrice)
+        tot = [0] * n
+        for row in new_matrice:
+            if row != '∴':
+                new_matrice[new_matrice.index(row)] = [int(x) if x.isdigit() else 0 for x in row]
+
+
+        # calcul des dates au plus tôt
+        for i in range(n):
+            tot[i] = max([tot[j] + int(new_matrice[j][i]) for j in range(n) if new_matrice[j][i] != '0'])
+
+        tard = [tot[-1]] * n
+        marges = [0] * n
+
+        for i in range(n - 2, -1, -1):
+            for j in range(n):
+                if new_matrice[i][j] != '0':
+                    tard[i] = min(tard[i], tard[j] - int(new_matrice[i][j]))
+            marges[i] = tard[i] - tot[i]
+
+
+        # affichage des résultats
+        print("\nCALCUL DES CALENDRIERS ET DES MARGES EN COURS ")
+        for i in range(3):
+            print(".", end="")
+            time.sleep(0.4)
+
+        print("\n")
+        print('╒═══════╤═══════╤═══════╤═══════╕')
+        print('│ Tache │ tot   │ tard  │ marge │')
+        print('╞═══════╪═══════╪═══════╪═══════╡')
+        for i in range(n):
+            if i == 0:
+                tache = "α"
+            elif i == n - 1:
+                tache = "ω"
+            else:
+                tache = str(i)
+            print('│{:^7}│{:^7}│{:^7}│{:^7}│'.format(tache, tot[i], tard[i], marges[i]))
+
+            time.sleep(0.35)
+            if i < n - 1:
+                print('├───────┼───────┼───────┼───────┤')
+        print('╘═══════╧═══════╧═══════╧═══════╛')
+
+        return (i, tot, tard, marges)
+
+    def display_critical_path(matrice):
+        i, tot, tard, marges = Ordonnancement.calendar_margin(matrice)
+
+        crit_path = []
+        for i in range(len(marges)):
+            if marges[i] == 0:
+                crit_path.append(i)
+
+        if len(crit_path) > 0:
+            if crit_path[0] == 0:
+                crit_path[0] = "α"
+            if crit_path[-1] == len(marges) - 1:
+                crit_path[-1] = "ω"
+
+            print(RED + "Le chemin critique est :" + RESET)
+            print(" ❯ ".join(str(task) for task in crit_path))
+        else:
+            print("Il n'y a pas de chemin critique.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
