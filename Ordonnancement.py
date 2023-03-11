@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+import PrettyTable as pt
 import FileMemory
 import time
 from tqdm import tqdm
 from colorama import Fore, Style, init, deinit
 import re
+
 
 init()
 # Définition des constantes
@@ -186,32 +189,32 @@ class Ordonnancement:
                 for i in range(len(matrice)):
                     for j in range(len(matrice)):
                         if str(matrice[i][j]) != '∴' and int(re.search(r'\d+', str(matrice[i][j])).group()) < 0:
-                            print(RED+"\n-> Il y a au moins un arc à valeur négative"+RESET)
+                            print(Style.BRIGHT + Fore.LIGHTRED_EX +"\n-> Il y a au moins un arc à valeur négative" + Style.BRIGHT + Fore.LIGHTRED_EX)
                             return False
 
 
-                if not nouveaux_points_entree:
-                    print(Style.BRIGHT + Fore.LIGHTRED_EX + "\n-> Il y a donc un circuit !" + Style.RESET_ALL + Fore.RESET)
+                if not nouveaux_points_entree and len(sommets) > 0 :
+                    print(Style.BRIGHT + Fore.LIGHTRED_EX + "\n-> Il y a donc un circuit !" + Style.BRIGHT + Fore.LIGHTRED_EX )
                     # S'il ne reste plus de sommets, le graphe n'a pas de circuit
                     return False
 
                 points_entree = nouveaux_points_entree
 
-            print(GREEN + "-> Il n'y a pas d'arcs négatifs !\n-> C'est un graphe d'ordonnancement !" + RESET + "\n")
+            print(Style.BRIGHT + Fore.LIGHTGREEN_EX + "-> Il n'y a pas d'arcs négatifs !\n-> C'est un graphe d'ordonnancement !" + Style.BRIGHT + Fore.LIGHTRED_EX + "\n")
             return True
 
     def rank_calculation(matrice):
         matrice_copy = [row[:] for row in matrice]  # faire une copie de la matrice
 
         if not Ordonnancement.not_circuit_detection(matrice_copy):
-            print("Ce n'est donc pas un graphe d'ordonnancement :(")
-            return
+            print(Style.BRIGHT + Fore.LIGHTRED_EX +"Ce n'est donc pas un graphe d'ordonnancement :(\n"+ Style.BRIGHT + Fore.LIGHTRED_EX)
+            return False
         else:
             n = len(matrice)
             degres = [0] * n
             for i in range(n):
                 for j in range(n):
-                    if matrice[i][j] != '*':
+                    if matrice[i][j] != '∴':
                         degres[j] += 1
 
             rangs = [0] * n
@@ -223,13 +226,21 @@ class Ordonnancement:
                 for i in a_traiter:
                     rangs[i] = k
                     for j in range(n):
-                        if matrice[i][j] != '*':
+                        if matrice[i][j] != '∴':
                             degres[j] -= 1
                             if degres[j] == 0:
                                 a_traiter_suivant.append(j)
                 a_traiter = a_traiter_suivant
                 k += 1
+
+            table = pt()
+            table.field_names = ["Tache", "Rang"]
+            for i in range(n):
+                table.add_row([i, rangs[i]])
+
+            print(table)
             return rangs
+
 
     def calendrier_plus_tot(matrice, rangs):
         n = len(matrice)
