@@ -13,6 +13,7 @@ class Display:
             if reponse.lower() == 'oui':
                 # Lancer le programme
                 print("Programme lancé!")
+                final.load_tasks(self)  # Charger les tâches
                 final.display_critical_path(final.creation_scheduling(self))
             elif reponse.lower() != 'non':
                 # Répéter la demande si la réponse n'est pas valide

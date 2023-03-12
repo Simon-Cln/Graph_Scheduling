@@ -13,9 +13,42 @@ N = 13
 BLUE = Fore.BLUE
 RESET = Style.RESET_ALL
 RED = Fore.RED
+
+class Task:
+    def __init__(self, numero, duree, contraintes):
+        self.numero = numero
+        self.duree = duree
+        self.contraintes = contraintes
+        self.early_date = None
+        self.late_date = None
+        self.marge_tot = None
+        self.marge_libre = None
+        self.successors = []  # définir l'attribut successors à une liste vide par défaut
+        self.rank = None
+        # définir l'attribut predecessors à une liste vide par défaut
+
+
 class Ordonnancement:
+
+    def __init__(self):
+        self.tasks = self.load_tasks()
+        self.early_date = None
+        self.late_date = None
+
+    def load_tasks(self):
+        file_data = FileMemory.FileMemory.file_reading(self)
+        tasks = []
+        for task_data in file_data:
+            task = Task(
+                numero=task_data["numero"],
+                duree=task_data["duree"],
+                contraintes=task_data["contraintes"],
+            )
+            tasks.append(task)
+
+        self.tasks = tasks
     def creation_scheduling(self):
-        taches = FileMemory.FileMemory.file_reading(self)
+        taches = self.tasks
         BLUE = '\033[34m'
         RESET = '\033[0m'
         RED = '\033[31m'
@@ -28,38 +61,38 @@ class Ordonnancement:
 
         # Ajout des arcs depuis le sommet de départ a
         for tache in taches: #tache est une ligne
-            if tache["numero"] == 1: # tache[numero] parcourt la premiere ligne du fichier (les sommets ou numéros de tache)
+            if tache.numero == 1: # tache[numero] parcourt la premiere ligne du fichier (les sommets ou numéros de tache)
 
                 # on fait pareil sauf que c'est pour les taches suivantes
                 for tache in taches:
-                    if not tache["contraintes"]: #successeur = contrainte
+                    if not tache.contraintes: #successeur = contrainte
                         nb_arcs += 1
-                        print(f"α -> {tache['numero']} = 0")
+                        print(f"α -> {tache.numero} = 0")
 
 
 
         # Ajout des arcs entre les tâches
         for tache in taches:
             # Ajouter les arcs pour chaque contrainte (ou prédecesseur) de la tâche
-            for contrainte in (tache["contraintes"]):
+            for contrainte in (tache.contraintes):
                 nb_arcs += 1
                 duree = 0
                 for predecesseur in taches:
-                    if predecesseur["numero"] == contrainte:
-                        duree = predecesseur["duree"]
+                    if predecesseur.numero == contrainte:
+                        duree = predecesseur.duree
                         break
-                print(f"{contrainte} -> {tache['numero']} = {duree}")
+                print(f"{contrainte} -> {tache.numero} = {duree}")
 
 
         for tache in taches:
             has_successeurs = False
             for autre_tache in taches:
-                if tache["numero"] in autre_tache["contraintes"]:
+                if tache.numero in autre_tache.contraintes:
                     has_successeurs = True
                     break
             if not has_successeurs:
                 nb_arcs += 1
-                print(f"{tache['numero']} -> {'ω'}  = {tache['duree']}")
+                print(f"{tache.numero} -> {'ω'}  = {tache.duree}")
 
         # Affichage du nombre de sommets et d'arcs
         print(f"{nb_sommets} sommets")
@@ -71,29 +104,29 @@ class Ordonnancement:
         valeurs = [["∴" for _ in range(nb_sommets)] for _ in range(nb_sommets)]
         # Ajout des arcs vers le sommet de fin w
         for tache in taches:
-            if not tache["contraintes"]:
-                valeurs[0][tache["numero"]] = Style.BRIGHT + Fore.LIGHTGREEN_EX + str(0) + Style.RESET_ALL + Fore.RESET
+            if not tache.contraintes:
+                valeurs[0][tache.numero] = Style.BRIGHT + Fore.LIGHTGREEN_EX + str(0) + Style.RESET_ALL + Fore.RESET
 
         # Ajout des arcs entre les tâches
         for tache in taches:
             # Ajouter les arcs pour chaque contrainte de la tâche
-            for contrainte in tache["contraintes"]:
+            for contrainte in tache.contraintes:
                 duree = 0
                 for predecesseur in taches:
-                    if predecesseur["numero"] == contrainte:
-                        duree = predecesseur["duree"]
+                    if predecesseur.numero == contrainte:
+                        duree = predecesseur.duree
                         break
-                valeurs[contrainte][tache["numero"]] = Style.BRIGHT + Fore.LIGHTGREEN_EX + str(duree) + Style.RESET_ALL + Fore.RESET
+                valeurs[contrainte][tache.numero] = Style.BRIGHT + Fore.LIGHTGREEN_EX + str(duree) + Style.RESET_ALL + Fore.RESET
 
         # Ajout de l'arc entre le sommet de fin w
         for tache in taches:
             has_successeurs = False
             for autre_tache in taches:
-                if tache["numero"] in autre_tache["contraintes"]:
+                if tache.numero in autre_tache.contraintes:
                     has_successeurs = True
                     break
             if not has_successeurs:
-                valeurs[tache["numero"]][N + 1] = Style.BRIGHT + Fore.LIGHTGREEN_EX + str(tache["duree"]) + Style.RESET_ALL + Fore.RESET
+                valeurs[tache.numero][N + 1] = Style.BRIGHT + Fore.LIGHTGREEN_EX + str(tache.duree) + Style.RESET_ALL + Fore.RESET
 
 
 
@@ -308,9 +341,27 @@ class Ordonnancement:
             if row != '∴':
                 new_matrice[new_matrice.index(row)] = [int(x) if x.isdigit() else 0 for x in row]
 
-
         # calcul des dates au plus tôt
-        for i in range(n):
+        earlydate = [0] * n
+        for j, task in enumerate(new_matrice):
+            for i, duration in enumerate(task):
+                if duration != 0:
+                    if earlydate[i] == 0:
+                        earlydate[i] = duration + earlydate[j]
+                    else:
+                        earlydate[i] = max(earlydate[i], earlydate[j] + duration)
+
+        #calcul des dates au plus tard + marges
+        late_date = [earlydate[-1]] * n
+        margin = [0] * n
+
+        for i in range(n - 2, -1, -1):
+            for j in range(n):
+                if new_matrice[i][j] != 0:
+                    late_date[i] = min(late_date[i], late_date[j] - new_matrice[i][j])
+            margin[i] = late_date[i] - earlydate[i]
+
+        '''for i in range(n):
             tot[i] = max([tot[j] + int(new_matrice[j][i]) for j in range(n) if new_matrice[j][i] != '0'])
 
         tard = [tot[-1]] * n
@@ -320,7 +371,7 @@ class Ordonnancement:
             for j in range(n):
                 if new_matrice[i][j] != '0':
                     tard[i] = min(tard[i], tard[j] - int(new_matrice[i][j]))
-            marges[i] = tard[i] - tot[i]
+            marges[i] = tard[i] - tot[i]'''
 
 
         # affichage des résultats
@@ -331,23 +382,25 @@ class Ordonnancement:
 
         print("\n")
         print('╒═══════╤═══════╤═══════╤═══════╕')
-        print('│ Tache │ tot   │ tard  │ marge │')
+        print('│ Tache │  Tot  │ Tard  │ Marge │')
         print('╞═══════╪═══════╪═══════╪═══════╡')
         for i in range(n):
             if i == 0:
                 tache = "α"
+                late_date[i] = 0
+                margin[i] = 0
             elif i == n - 1:
                 tache = "ω"
             else:
                 tache = str(i)
-            print('│{:^7}│{:^7}│{:^7}│{:^7}│'.format(tache, tot[i], tard[i], marges[i]))
+            print('│{:^7}│{:^7}│{:^7}│{:^7}│'.format(tache, earlydate[i], late_date[i], margin[i]))
 
             time.sleep(0.35)
             if i < n - 1:
                 print('├───────┼───────┼───────┼───────┤')
         print('╘═══════╧═══════╧═══════╧═══════╛')
 
-        return (i, tot, tard, marges)
+        return (tache, earlydate, late_date, margin)
 
     def display_critical_path(matrice):
         i, tot, tard, marges = Ordonnancement.calendar_margin(matrice)
