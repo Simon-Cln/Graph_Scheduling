@@ -1,6 +1,6 @@
 import FileMemory
 import Ordonnancement
-
+import time
 class Display:
 
     def launch(self):
@@ -12,7 +12,10 @@ class Display:
 
             if reponse.lower() == 'oui':
                 # Lancer le programme
-                print("Programme lancé!")
+                for i in range(1, 11):
+                    print(f"Progression : {i * 10}% {'.' * (i - 1)}{' ' * (10 - i)}", end="\r")
+                    time.sleep(0.3)
+                print("\nProgramme lancé!")
                 final.load_tasks(self)  # Charger les tâches
                 final.display_critical_path(final.creation_scheduling(self))
             elif reponse.lower() != 'non':
