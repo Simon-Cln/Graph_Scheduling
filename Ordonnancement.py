@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-import FileMemory
+from Display import Display
+from FileMemory import FileMemory
 import time
 from tqdm import tqdm
 from colorama import Fore, Style, init, deinit
 import re
 import prettytable as pt
-
-
+filememory = FileMemory()
+display = Display()
 init()
 # Définition des constantes
 N = 13
@@ -36,7 +37,7 @@ class Ordonnancement:
         self.late_date = None
 
     def load_tasks(self):
-        file_data = FileMemory.FileMemory.file_reading(self)
+        file_data = filememory.file_reading()
         tasks = []
         for task_data in file_data:
             task = Task(
@@ -242,25 +243,24 @@ class Ordonnancement:
                     if sommet == 'ω':
                         nouveaux_points_entree[i] = len(matrice) - 1
 
-
-
-
                 # Vérification d'arcs à valeur négative
                 for i in range(len(matrice)):
                     for j in range(len(matrice)):
-                        if str(matrice[i][j]) != '∴' and int(re.search(r'\d+', str(matrice[i][j])).group()) < 0:
-                            print(Style.BRIGHT + Fore.LIGHTRED_EX +"\n-> Il y a au moins un arc à valeur négative" + Style.BRIGHT + Fore.LIGHTRED_EX)
+                        if str(matrice[i][j]) != '∴' and str(matrice[i][j]).__contains__('-'):
+                            print(Style.BRIGHT + Fore.LIGHTRED_EX +"\n-> Il y a au moins un arc à valeur négative\n" + Style.BRIGHT + Fore.LIGHTRED_EX)
+                            display.launch()
                             return False
 
-
                 if not nouveaux_points_entree and len(sommets) > 0 :
-                    print(Style.BRIGHT + Fore.LIGHTRED_EX + "\n-> Il y a donc un circuit !" + Style.BRIGHT + Fore.LIGHTRED_EX )
+                    print(Style.BRIGHT + Fore.LIGHTRED_EX + "\n-> Il y a donc un circuit, vous ne pouvez pas aller plus loin :( !\n" + Style.BRIGHT + Fore.LIGHTRED_EX )
                     # S'il ne reste plus de sommets, le graphe n'a pas de circuit
+                    display.launch()
                     return False
+
 
                 points_entree = nouveaux_points_entree
 
-            print(Style.BRIGHT + Fore.LIGHTGREEN_EX + "-> Il n'y a pas d'arcs négatifs !\n-> C'est un graphe d'ordonnancement !" + Style.BRIGHT + Fore.LIGHTRED_EX + "\n")
+            print(Style.BRIGHT + Fore.LIGHTGREEN_EX + "\n\n-> Il n'y a pas d'arcs négatifs ni de circuit !\n-> C'est un graphe d'ordonnancement !" + Style.BRIGHT + Fore.LIGHTRED_EX + "\n")
             return True
 
     def rank_calculation(matrice):
@@ -331,6 +331,7 @@ class Ordonnancement:
         return new_matrice
 
     def calendar_margin(matrice):
+
         new_matrice = Ordonnancement.remove_escape_chars(matrice)
 
         Ordonnancement.rank_calculation(new_matrice)
@@ -360,18 +361,6 @@ class Ordonnancement:
                 if new_matrice[i][j] != 0:
                     late_date[i] = min(late_date[i], late_date[j] - new_matrice[i][j])
             margin[i] = late_date[i] - earlydate[i]
-
-        '''for i in range(n):
-            tot[i] = max([tot[j] + int(new_matrice[j][i]) for j in range(n) if new_matrice[j][i] != '0'])
-
-        tard = [tot[-1]] * n
-        marges = [0] * n
-
-        for i in range(n - 2, -1, -1):
-            for j in range(n):
-                if new_matrice[i][j] != '0':
-                    tard[i] = min(tard[i], tard[j] - int(new_matrice[i][j]))
-            marges[i] = tard[i] - tot[i]'''
 
 
         # affichage des résultats
@@ -403,6 +392,8 @@ class Ordonnancement:
         return (tache, earlydate, late_date, margin)
 
     def display_critical_path(matrice):
+
+
         i, tot, tard, marges = Ordonnancement.calendar_margin(matrice)
 
         crit_path = []

@@ -19,6 +19,7 @@ class Display:
                 # Répéter la demande si la réponse n'est pas valide
                 print("Réponse invalide. Veuillez entrer 'oui' ou 'non'.")
         print("Programme terminé.")
+        exit()
 
 
 if __name__ == '__main__':
