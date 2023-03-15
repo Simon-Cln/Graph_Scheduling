@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 from colorama import Fore, Style, init, deinit
 import re
-import prettytable as pt
+
 filememory = FileMemory()
 display = Display()
 init()
