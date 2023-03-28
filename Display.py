@@ -31,9 +31,6 @@ class Display:
                     elif i < 100:
                         color = Fore.GREEN
 
-
-
-
                 print("\nProgramme lancé!")
                 final.load_tasks(self)  # Charger les tâches
                 final.display_critical_path(final.creation_scheduling(self))
