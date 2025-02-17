@@ -1,13 +1,14 @@
-import FileMemory
-import Ordonnancement
+from . import FileMemory
+from . import Ordonnancement
 import time
 from colorama import Fore, Style, init, deinit
+from .Ordonnancement import Ordonnancement 
 
 init()
 class Display:
 
     def launch(self):
-        final = Ordonnancement.Ordonnancement
+        final = Ordonnancement()  
         reponse = 'oui'
         while reponse.lower() != 'non':
             # Demander à l'utilisateur de lancer le programme
@@ -32,8 +33,12 @@ class Display:
                         color = Fore.GREEN
 
                 print("\nProgramme lancé!")
-                final.load_tasks(self)  # Charger les tâches
-                final.display_critical_path(final.creation_scheduling(self))
+                final = Ordonnancement()
+                final.load_tasks()  # Demande "Entrez un numéro de fichier" une seule fois
+                matrice = final.creation_scheduling()
+                final.display_critical_path(matrice)
+
+                
             elif reponse.lower() != 'non':
                 # Répéter la demande si la réponse n'est pas valide
                 print("Réponse invalide. Veuillez entrer 'oui' ou 'non'.")

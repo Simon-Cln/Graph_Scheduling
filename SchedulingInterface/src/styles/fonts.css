@@ -1,0 +1,20 @@
+@font-face {
+    font-family: 'NoiGrotesk';
+    src: url('../assets/fonts/NoiGroteskTrial-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NoiGrotesk';
+    src: url('../assets/fonts/NoiGroteskTrial-Medium.otf') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NoiGrotesk';
+    src: url('../assets/fonts/NoiGroteskTrial-Bold.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
