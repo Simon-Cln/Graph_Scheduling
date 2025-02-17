@@ -1,3 +1,5 @@
+![GraphScheduling Animation](graphscheduling.gif)
+
 # GraphScheduling
 
 ## Project Description
@@ -6,14 +8,14 @@
 ---
 
 ## Graph Visualization
-- **Status**: “No circuit detected” serves as an example outcome indicating a valid scheduling graph.
+- **Status**: ✅ “No circuit detected” serves as an example outcome indicating a valid scheduling graph.
 - **Features**:
-  - **Zoom**: Zoom in/out to analyze parts of the graph more closely.
-  - **View Mode**: Switch between different layout modes or levels of detail.
+  - **🔍 Zoom**: Zoom in/out to analyze parts of the graph more closely.
+  - **👁️ View Mode**: Switch between different layout modes or levels of detail.
 
 ---
 
-## Example Value Matrix
+## 📊 Example Value Matrix
 Below is an **example** matrix representing task relationships and dependencies. The symbol “∴” denotes an undefined or non-existent relationship. In practice, you would replace this example with the actual data for your project.
 
 |     | α   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  | 13  | ω   |
@@ -36,7 +38,7 @@ Below is an **example** matrix representing task relationships and dependencies.
 
 ---
 
-## Example Calendar and Margins
+## 📅 Example Calendar and Margins
 The table below is an **example** of how task scheduling information can be presented. It includes earliest start times, latest start times, total float, and free float for each task. Replace this data with your actual schedule when using GraphScheduling in production.
 
 | Task  | Earliest Start | Latest Start | Total Float | Free Float |
@@ -59,7 +61,7 @@ The table below is an **example** of how task scheduling information can be pres
 
 ---
 
-## Usage
+## 💡 Usage
 1. **Load Data**: Import your scheduling data into the GraphScheduling tool.
 2. **Analyze Graph**: Check the graph to confirm no circuits exist.
 3. **Review Relationships**: Use the matrix (or equivalent data structure) to see how tasks interrelate.
@@ -68,7 +70,7 @@ The table below is an **example** of how task scheduling information can be pres
 
 ---
 
-## Contributing
+## 🤝 Contributing
 You can contribute by:
 - Reporting issues or bugs.
 - Suggesting new features.
@@ -76,7 +78,7 @@ You can contribute by:
 
 ---
 
-## License
+## 📝 License
 This project is provided under an open license. For more details, consult the `LICENSE` file.
 
 ---
