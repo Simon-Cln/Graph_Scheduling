@@ -1,0 +1,9 @@
+SchedulingInterface/node_modules/
+SchedulingInterface/dist/
+SchedulingInterface/.vscode/
+SchedulingInterface/.idea/
+SchedulingInterface/.DS_Store
+SchedulingInterface/.env
+SchedulingInterface/.env.local
+SchedulingInterface/.env.development.local
+SchedulingInterface/.env.test.local
